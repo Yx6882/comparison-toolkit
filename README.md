@@ -43,10 +43,10 @@ AI 会自己 clone、读 SKILL、跑脚本。
 
 手机端 AI 读不到 GitHub 的完整内容，也跑不了代码。但你可以用**纯文本版**：把它当对照顾问。
 
-打开 [`compare-anything/references/anti-patterns.txt`](compare-anything/references/anti-patterns.txt)，里面第 4 节有一段**可直接复制的指令**，粘给 AI，再贴你的数据，它就会按八条清单帮你检查。
+打开 [`compare-anything/references/anti-patterns.txt`](compare-anything/references/anti-patterns.txt)，里面第 4 节有一段**可直接复制的指令**，粘给 AI，再贴你的数据，它就会按九条清单帮你检查。
 
 它做不到的：跑代码、读你手机里的大文件、精确比对几千行表格。
-它做得到的：避免八条最常见的对照错误，帮你把问题问对。
+它做得到的：避免九条最常见的对照错误，帮你把问题问对。
 
 | 环境 | 完整能力 | 顾问能力 |
 |---|---|---|
@@ -122,9 +122,9 @@ Python 3.10+。
 
 不是功能，是 **[反模式清单](compare-anything/references/anti-patterns.md)**。
 
-它列了八类「看起来对、其实错」的陷阱——负数被跳过、边界值归错档、历史记录当现状、单位没归一化……全部来自 benchmark 抓到的真实缺陷。
+它列了九类「看起来对、其实错」的陷阱——负数被跳过、边界值归错档、历史记录当现状、单位没归一化……全部来自 benchmark 抓到的真实缺陷。
 
-**给出「一致」「无差异」「已解决」之前，先过一遍那八条。**
+**给出「一致」「无差异」「已解决」之前，先过一遍那九条。**
 
 ## 验收
 

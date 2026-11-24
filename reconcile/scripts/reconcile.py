@@ -412,7 +412,51 @@ class Diff:
     impact: float | None = None  # 金额化影响：|差值| × 数量
 
 
+DATE_RE = re.compile(r"(\d{4})[-/年](\d{1,2})[-/月](\d{1,2})")
+MONEY_ABS_TOLERANCE = 0.005  # 半分钱；会计对账必须精确到分
+
+
+def parse_date(text: str) -> tuple[int, int, int] | None:
+    match = DATE_RE.search(str(text or ""))
+    if not match:
+        return None
+    try:
+        year, month, day = (int(part) for part in match.groups())
+    except ValueError:
+        return None
+    if not (1 <= month <= 12 and 1 <= day <= 31):
+        return None
+    return (year, month, day)
+
+
 def compare_values(field: str, left_raw: str, right_raw: str, *, tolerance: float) -> Diff | None:
+    # 日期先比：差一天可能是跨期，不能被文本相似度吃掉
+    left_date = parse_date(left_raw)
+    right_date = parse_date(right_raw)
+    if left_date and right_date:
+        if left_date != right_date:
+            return Diff(
+                kind="value", key="", label=field, field=field,
+                left=left_raw, right=right_raw, delta_unit="date", severity="high",
+                note="日期不同",
+            )
+        return None
+
+    # 金额用绝对容差：0.5 元在 8600 里只占 0.006%，相对容差会把它吃掉
+    if looks_money(field):
+        left_money = parse_number(left_raw)
+        right_money = parse_number(right_raw)
+        if left_money and right_money and left_money[1] == right_money[1]:
+            gap = abs(right_money[0] - left_money[0])
+            if gap < MONEY_ABS_TOLERANCE:
+                return None
+            return Diff(
+                kind="value", key="", label=field, field=field,
+                left=left_raw, right=right_raw,
+                delta=(right_money[0] - left_money[0]) / (abs(left_money[0]) or 1.0),
+                severity="high", note=f"金额差 {gap:,.2f}",
+            )
+
     left_value = parse_number(left_raw)
     right_value = parse_number(right_raw)
     if left_value and right_value:

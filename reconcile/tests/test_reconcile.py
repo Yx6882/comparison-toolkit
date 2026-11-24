@@ -130,7 +130,24 @@ class TestComparison(unittest.TestCase):
         self.assertEqual(diff.kind, "value")
 
     def test_within_tolerance_is_quiet(self):
-        self.assertIsNone(rc.compare_values("单价", "12000", "12010", tolerance=0.01))
+        self.assertIsNone(rc.compare_values("长度", "12000", "12010", tolerance=0.01))
+
+    def test_money_uses_absolute_tolerance(self):
+        """10 元在 12000 里只占 0.08%，但会计对账必须报出来。"""
+        diff = rc.compare_values("单价", "12000", "12010", tolerance=0.01)
+        self.assertIsNotNone(diff)
+        self.assertIn("金额差", diff.note)
+
+    def test_money_half_cent_is_quiet(self):
+        self.assertIsNone(rc.compare_values("金额", "8600.500", "8600.501", tolerance=0.01))
+
+    def test_date_difference_is_detected(self):
+        diff = rc.compare_values("记账日期", "2026-10-12", "2026-10-13", tolerance=0.01)
+        self.assertIsNotNone(diff)
+        self.assertEqual(diff.delta_unit, "date")
+
+    def test_same_date_different_format_is_quiet(self):
+        self.assertIsNone(rc.compare_values("记账日期", "2026-10-12", "2026/10/12", tolerance=0.01))
 
     def test_percent_uses_points(self):
         diff = rc.compare_values("涨跌幅", "1.2%", "0.9%", tolerance=0.01)
