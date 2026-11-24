@@ -1,5 +1,10 @@
 # 对照万物 · Comparison Toolkit
 
+[![tests](https://github.com/Yx6882/comparison-toolkit/actions/workflows/tests.yml/badge.svg)](https://github.com/Yx6882/comparison-toolkit/actions/workflows/tests.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+
 七个 skill + 一套验收工具，解决同一类问题：**给你两份东西，告诉你哪里不一样、先看哪个、怎么改、改完是否真的收敛了。**
 
 ## 怎么给 AI 用

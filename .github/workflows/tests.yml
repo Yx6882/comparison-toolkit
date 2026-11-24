@@ -1,0 +1,53 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 安装可选依赖
+        run: pip install openpyxl python-docx python-pptx Pillow
+
+      - name: 各 skill 单元测试
+        shell: pwsh
+        run: |
+          $dirs = @('ai-council','spec-consistency','ledger-match','reconcile','assess','exchange','compare-anything')
+          $failed = @()
+          foreach ($d in $dirs) {
+            Write-Host "===== $d ====="
+            Push-Location $d
+            python -m unittest discover -s tests -v
+            if ($LASTEXITCODE -ne 0) { $failed += $d }
+            Pop-Location
+          }
+          if ($failed.Count -gt 0) {
+            Write-Host "::error::单元测试失败: $($failed -join ', ')"
+            exit 1
+          }
+          Write-Host "全部单元测试通过"
+
+      - name: 对照集 benchmark（21 场景）
+        run: python benchmark/run.py
+
+      - name: 错误注入验收（11 条）
+        run: python compare-anything/scripts/acceptance.py
+
+      - name: 安装脚本自检
+        run: python install.py --list
