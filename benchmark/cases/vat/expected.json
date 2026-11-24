@@ -1,0 +1,23 @@
+{
+  "name": "进项税勾稽 · 税率差异与异常票",
+  "tool": "ledger",
+  "argv": [
+    "--voucher",
+    "{input}/凭证明细.xlsx",
+    "--invoice",
+    "{input}/发票.xlsx",
+    "--out",
+    "{out}",
+    "--json"
+  ],
+  "report": "{out}/vat-reconcile.json",
+  "must_find": [
+    "9%",
+    "异常"
+  ],
+  "must_not_report": [
+    "13%",
+    "6%"
+  ],
+  "notes": "9% 差 5 元（凭证 95 vs 发票 90）；那张 8.3% 的发票应归为异常税率；13% 和 6% 两边完全一致"
+}

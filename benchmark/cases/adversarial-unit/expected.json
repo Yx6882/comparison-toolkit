@@ -1,0 +1,19 @@
+{
+  "name": "对抗 · 单位换算等价不算冲突",
+  "tool": "spec",
+  "argv": [
+    "scan",
+    "-d",
+    "{input}",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/spec-consistency.json",
+  "must_find": [],
+  "must_not_report": [
+    "整机重量",
+    "电池容量"
+  ],
+  "expect_empty": true,
+  "notes": "6.2 kg 与 6200 g 换算后相等，不应报 high 级冲突"
+}

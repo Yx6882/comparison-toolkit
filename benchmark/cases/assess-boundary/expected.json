@@ -1,0 +1,25 @@
+{
+  "name": "边界值 · 落在界上归下一级",
+  "tool": "assess",
+  "argv": [
+    "run",
+    "--rubric",
+    "health-metabolic",
+    "--input",
+    "{input}/values.json",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/health-metabolic.json",
+  "must_find": [
+    "tc|边缘升高",
+    "tg|边缘升高",
+    "glucose|空腹血糖受损",
+    "uric|偏高"
+  ],
+  "must_not_report": [
+    "tc|合适",
+    "glucose|正常"
+  ],
+  "notes": "六个值全都压在切点上。指南写的是 TC <5.2 合适，所以 5.2 必须归「边缘升高」。如果工具用 value > upper 判定，5.2 会被判成「合适」——那是错的。"
+}

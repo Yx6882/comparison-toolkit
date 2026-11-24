@@ -1,0 +1,21 @@
+{
+  "name": "真实数据 · 世界人口 2020→2023",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/2020.csv",
+    "{input}/2023.csv",
+    "--key",
+    "国家",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/2020_vs_2023.json",
+  "must_find": [
+    "BR",
+    "IN",
+    "US"
+  ],
+  "must_not_report": [],
+  "notes": "六国人口均变化，但 CN 只降 0.03%（14.111亿→14.107亿），在默认 1% 容差内——工具不报是对的"
+}

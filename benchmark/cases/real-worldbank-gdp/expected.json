@@ -1,0 +1,22 @@
+{
+  "name": "真实数据 · 世界银行 GDP 2020→2023",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/2020.csv",
+    "{input}/2023.csv",
+    "--key",
+    "国家",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/2020_vs_2023.json",
+  "must_find": [
+    "CN",
+    "US",
+    "JP",
+    "DE"
+  ],
+  "must_not_report": [],
+  "notes": "公开数据（世界银行 NY.GDP.MKTP.CD）；四国 GDP 均已变化：CN +21.8%、US +30.1%、DE +15.8%、JP -15.5%"
+}

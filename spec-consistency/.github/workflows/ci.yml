@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: py${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install document readers
+        run: pip install python-docx python-pptx openpyxl
+
+      - name: Unit tests (offline)
+        run: python -m unittest discover -s tests -v
+
+      - name: Built-in self test
+        run: python scripts/spec_audit.py selftest
+
+      - name: Demo must find the three planted conflicts
+        run: |
+          python scripts/spec_audit.py demo -o "$RUNNER_TEMP/pack" --report "$RUNNER_TEMP/pack/reports"
+          python - <<'PY'
+          import json, os, pathlib
+          report = pathlib.Path(os.environ["RUNNER_TEMP"]) / "pack" / "reports" / "spec-consistency.json"
+          data = json.loads(report.read_text(encoding="utf-8"))
+          assert data["stats"]["by_severity"]["high"] == 3, data["stats"]
+          labels = {f["label"] for f in data["findings"] if f["kind"] == "conflict"}
+          assert labels == {"电池容量", "满载续航", "整机重量"}, labels
+          print("demo ok:", data["stats"])
+          PY
+
+      - name: Gate must fail on high findings
+        run: |
+          set +e
+          python scripts/spec_audit.py scan "$RUNNER_TEMP/pack" -o "$RUNNER_TEMP/gate" --fail-on high
+          code=$?
+          set -e
+          test "$code" -eq 1 && echo "gate correctly failed with exit 1"
+
+      - name: Frontmatter guard
+        run: |
+          python - <<'PY'
+          import re, pathlib
+          text = pathlib.Path("SKILL.md").read_text(encoding="utf-8")
+          assert text.startswith("---\n"), "SKILL.md needs frontmatter"
+          front = text.split("---", 2)[1]
+          name = re.search(r"^name:\s*(\S+)\s*$", front, re.M).group(1)
+          desc = re.search(r"^description:\s*(.+)$", front, re.M).group(1)
+          assert re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", name) and len(name) <= 64
+          assert 40 < len(desc) <= 1024
+          print("frontmatter ok:", name, len(desc), "chars")
+          PY

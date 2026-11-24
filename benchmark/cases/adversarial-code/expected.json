@@ -1,0 +1,22 @@
+{
+  "name": "对抗 · 编号相近不是同一个物料",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/A.csv",
+    "{input}/B.csv",
+    "--key",
+    "物料号",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/A_vs_B.json",
+  "must_find": [
+    "M-1004|仅左侧存在",
+    "M-1005|仅右侧存在"
+  ],
+  "must_not_report": [
+    "M-1004|单价"
+  ],
+  "notes": "M-1004 和 M-1005 是两个物料，不能被模糊匹配成「修改」"
+}

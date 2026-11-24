@@ -1,0 +1,23 @@
+# 运行产物
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 本地输出
+out/
+*-out/
+demo/
+*-demo/
+vat-run/
+reports/
+real-data/*.json.bak
+
+# 打包与系统文件
+*.zip
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.idea/
+.vscode/

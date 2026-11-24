@@ -1,0 +1,23 @@
+{
+  "version": "x",
+  "mode": "record",
+  "generated_at": "2026-10-01T09:00:00+08:00",
+  "diffs": [
+    {
+      "kind": "value",
+      "key": "M-1001",
+      "field": "单价",
+      "left": "12000",
+      "right": "11800",
+      "severity": "high"
+    },
+    {
+      "kind": "value",
+      "key": "M-1002",
+      "field": "单价",
+      "left": "500",
+      "right": "520",
+      "severity": "high"
+    }
+  ]
+}

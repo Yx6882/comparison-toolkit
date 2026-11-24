@@ -1,0 +1,23 @@
+{
+  "name": "三方报价 · 多数与无共识",
+  "tool": "multi",
+  "argv": [
+    "multi",
+    "{input}/报价A.csv",
+    "{input}/报价B.csv",
+    "{input}/报价C.csv",
+    "--key",
+    "物料号",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/reconcile-multi.json",
+  "must_find": [
+    "M-1001|多数",
+    "M-1002|无共识"
+  ],
+  "must_not_report": [
+    "数量|多数"
+  ],
+  "notes": "M-1001 单价两票 12000、C 离群 13500；M-1002 单价 500/600/700 全不同"
+}

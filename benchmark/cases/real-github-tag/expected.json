@@ -1,0 +1,22 @@
+{
+  "name": "真实数据 · vuejs/core v3.4.0 → v3.5.0 开发依赖",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/v3.4.0.csv",
+    "{input}/v3.5.0.csv",
+    "--key",
+    "依赖",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/v3_4_0_vs_v3_5_0.json",
+  "must_find": [
+    "terser",
+    "@swc/core",
+    "eslint",
+    "vitest"
+  ],
+  "must_not_report": [],
+  "notes": "真实 devDependencies：13 项删除（terser 等）、8 项新增（@swc/core 等）、34 项版本变化（eslint 8→9、vitest 1→2）"
+}

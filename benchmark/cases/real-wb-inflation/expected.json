@@ -1,0 +1,22 @@
+{
+  "name": "真实数据 · 各国通胀率 2020→2023",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/2020.csv",
+    "{input}/2023.csv",
+    "--key",
+    "国家",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/2020_vs_2023.json",
+  "must_find": [
+    "BR",
+    "CN",
+    "DE",
+    "US"
+  ],
+  "must_not_report": [],
+  "notes": "通胀率含负值（JP -0.025%），工具必须能处理负数；DE 从 0.14% 升到 5.95%"
+}

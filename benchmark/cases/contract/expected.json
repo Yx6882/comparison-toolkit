@@ -1,0 +1,19 @@
+{
+  "name": "合同改版 · 金额/日期/条款变化",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/合同A.docx",
+    "{input}/合同B.docx",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/合同A_vs_合同B.json",
+  "must_find": [
+    "120000",
+    "2026年12月31日",
+    "第五条"
+  ],
+  "must_not_report": [],
+  "notes": "金额 12 万→13.5 万、交付日期推后一个月、新增违约金条款；三条都必须被抓到"
+}

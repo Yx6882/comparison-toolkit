@@ -1,0 +1,20 @@
+{
+  "name": "产品资料包 · 跨文档冲突",
+  "tool": "spec",
+  "argv": [
+    "scan",
+    "-d",
+    "{input}",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/spec-consistency.json",
+  "must_find": [
+    "电池容量",
+    "满载续航"
+  ],
+  "must_not_report": [
+    "充电时长"
+  ],
+  "notes": "充电时长只在一份文档出现，是覆盖缺口不是冲突；重量用 kg/g 两种写法但换算等价"
+}

@@ -1,0 +1,35 @@
+{
+  "council": {
+    "name": "code-review",
+    "task": "评审本次改动的核心 diff：这段代码在并发下是否正确，是否会在生产环境造成事故？",
+    "mode": "pair",
+    "language": "简体中文",
+    "decision_rule": "chair",
+    "threshold": 0.5,
+    "deliverable": "合并 / 阻止合并的结论，加上必须修复的缺陷清单（文件:行 + 修法）。",
+    "constraints": ["不能改公共接口签名", "必须兼容旧客户端 6 个月", "只能加测试，不能删测试"],
+    "non_goals": ["不讨论代码风格", "不讨论命名"],
+    "budget": {"max_calls": 5, "max_chars": 200000}
+  },
+  "seats": [
+    {
+      "id": "producer",
+      "name": "实现者",
+      "role": "implementer",
+      "provider": "deepseek",
+      "model": "deepseek-chat",
+      "temperature": 0.3,
+      "brief": "你写了这段代码。说明它为什么正确，并主动交出你自己最不放心的一处。"
+    },
+    {
+      "id": "critic",
+      "name": "审查者",
+      "role": "critic",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "temperature": 0.2,
+      "brief": "找出会让这段代码在生产翻车的那一行。没有夸奖，没有风格建议。"
+    }
+  ],
+  "synthesizer": "producer"
+}

@@ -1,0 +1,33 @@
+# ai-council
+
+> A model-agnostic protocol for making several AIs disagree usefully. 2–7 models
+> from different labs work one question as a council: independent proposals,
+> anonymised cross-examination, revision, convergence with preserved dissent.
+> Zero dependencies; works with or without API keys.
+
+## Docs
+
+- [SKILL.md](SKILL.md): entry point for agents — when to use, three access modes, the ladder, output contract
+- [references/protocol.md](references/protocol.md): normative protocol — rounds, JSON envelopes, rules of order, stop conditions
+- [references/models.md](references/models.md): model families, seat selection, cost and latency
+- [references/adapters.md](references/adapters.md): provider wiring, quirks, local models, failure handling
+- [references/patterns.md](references/patterns.md): eight collaboration topologies and when to use each
+- [references/prompts.md](references/prompts.md): copy-paste role cards and round instructions
+- [references/relay-kit.md](references/relay-kit.md): run a council with only chat windows
+- [references/publish.md](references/publish.md): publish on GitHub, install into Claude Code / Codex / Cursor / DSH
+- [README.zh-CN.md](README.zh-CN.md): 中文说明
+
+## Code
+
+- [scripts/council.py](scripts/council.py): orchestrator, standard library only
+- [scripts/sync_models.py](scripts/sync_models.py): survey live model ids per provider
+- [examples/quickstart.json](examples/quickstart.json): triad that runs with four keys or fewer
+- [tests/test_council.py](tests/test_council.py): 30 offline tests
+
+## Facts an agent needs before running anything
+
+- Offline demo needs no keys: `python scripts/council.py demo`
+- Budget is `seats × rounds` calls; `--dry-run` prints the exact number
+- R1 must stay isolated; R2 is anonymised and hides the reviewer's own set
+- The minutes preserve the strongest minority argument verbatim — never drop it
+- A failed seat is reported, never silently dropped

@@ -1,0 +1,18 @@
+{
+  "name": "对抗 · 行序打乱不算差异",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/旧.csv",
+    "{input}/新.csv",
+    "--key",
+    "物料号",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/旧_vs_新.json",
+  "must_find": [],
+  "must_not_report": [],
+  "expect_empty": true,
+  "notes": "三行数据完全相同，只是顺序不同；按主键匹配就不该报任何差异"
+}

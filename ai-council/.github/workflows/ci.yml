@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: py${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Version
+        run: python --version
+
+      - name: Unit tests (offline, no keys)
+        run: python -m unittest discover -s tests -v
+
+      - name: Built-in self test
+        run: python scripts/council.py selftest
+
+      - name: Offline demo end to end
+        run: python scripts/council.py demo --out "$RUNNER_TEMP/demo"
+        env:
+          PYTHONUTF8: "1"
+
+      - name: Demo produced valid artefacts
+        run: |
+          test -s "$RUNNER_TEMP/demo/transcript.md"
+          test -s "$RUNNER_TEMP/demo/minutes.md"
+          python - <<'PY'
+          import json, os, pathlib
+          path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "demo" / "minutes.json"
+          data = json.loads(path.read_text(encoding="utf-8"))
+          assert data["decision"]["statement"], "missing decision"
+          assert data["dissent"], "dissent must survive convergence"
+          assert [r["name"] for r in data["rounds"]] == ["propose", "critique", "revise", "converge"]
+          print("minutes ok:", data["budget"]["calls_used"], "calls")
+          PY
+
+      - name: Validate every example config
+        run: |
+          for f in examples/*.json assets/council.example.json; do
+            python scripts/council.py validate -c "$f"
+          done
+
+      - name: Dry run (no network)
+        run: python scripts/council.py run -c examples/quickstart.json --dry-run
+
+      - name: Guard against committed keys
+        run: |
+          # tests/ deliberately contains a fake key to exercise the redactor.
+          if grep -rInE "(sk-[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,})" \
+             --include="*.json" --include="*.md" --include="*.py" \
+             --exclude-dir=tests --exclude-dir=.git . ; then
+            echo "::error::possible API key committed"; exit 1
+          fi
+          echo "no key-shaped strings found"

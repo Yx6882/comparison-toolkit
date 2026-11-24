@@ -1,0 +1,22 @@
+{
+  "name": "真实数据 · 各国失业率 2020→2023",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/2020.csv",
+    "{input}/2023.csv",
+    "--key",
+    "国家",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/2020_vs_2023.json",
+  "must_find": [
+    "BR",
+    "CN",
+    "IN",
+    "US"
+  ],
+  "must_not_report": [],
+  "notes": "六国失业率均下降，US 从 8.06% 降到 3.64%"
+}

@@ -1,0 +1,36 @@
+# audit output
+reports/
+spec-reports/
+demo-run/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# office lock files
+~$*
+*.tmp
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+out/
+*-out/
+demo/
+demo-*/
+*-demo/
+trend-demo/
+media-demo/
+multi-demo/
+fix-demo/
+vat-run/
+real-trend/
+dir-out/
+reconcile-out/
+real-out/
+real-out-readme/
+*.zip

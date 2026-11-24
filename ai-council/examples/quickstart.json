@@ -1,0 +1,53 @@
+{
+  "council": {
+    "name": "quickstart",
+    "task": "把这里换成你真正要决策的问题：一句可被证伪的话，比一段背景更有用。",
+    "mode": "triad",
+    "language": "简体中文",
+    "decision_rule": "supermajority",
+    "threshold": 0.66,
+    "deliverable": "一条决策、置信度、支撑理由、未决分歧、风险、下一步行动。",
+    "constraints": ["3 周内必须有结论", "预算冻结，不能加人"],
+    "non_goals": ["不讨论与本决策无关的平台迁移"],
+    "budget": {"max_calls": 10, "max_chars": 300000}
+  },
+  "seats": [
+    {
+      "id": "generalist",
+      "name": "通才",
+      "role": "generalist",
+      "provider": "openai",
+      "model": "gpt-5",
+      "temperature": 0.7,
+      "brief": "整体判断：收益、成本、可逆性。指出什么会让这个决定可以回退。"
+    },
+    {
+      "id": "specialist",
+      "name": "专家",
+      "role": "specialist",
+      "provider": "deepseek",
+      "model": "deepseek-chat",
+      "temperature": 0.5,
+      "brief": "你负责技术细节与边界条件：别人最容易搞错的那一层。"
+    },
+    {
+      "id": "critic",
+      "name": "红队",
+      "role": "critic",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "temperature": 0.4,
+      "brief": "只找使结论失效的隐含假设与最坏情况。一个致命缺陷胜过五个小毛病。"
+    },
+    {
+      "id": "synth",
+      "name": "综合者",
+      "role": "synthesizer",
+      "provider": "google",
+      "model": "gemini-3-pro",
+      "temperature": 0.3,
+      "brief": "只合并记录，不发明论据。保留最强的反对意见原文。"
+    }
+  ],
+  "synthesizer": "synth"
+}

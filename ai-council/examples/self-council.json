@@ -1,0 +1,26 @@
+{
+  "council": {
+    "name": "self-council",
+    "task": "我是否应该接受这份需要搬家到另一个城市的工作机会？",
+    "mode": "solo",
+    "language": "简体中文",
+    "decision_rule": "chair",
+    "threshold": 0.5,
+    "deliverable": "一个决定、置信度、被牺牲掉的东西、最坏情况与退路。",
+    "constraints": ["有房贷，现金缓冲 6 个月", "伴侣的工作需要重新找", "父母在本地且健康状况一般"],
+    "non_goals": ["不讨论行业前景"],
+    "budget": {"max_calls": 3, "max_chars": 120000}
+  },
+  "seats": [
+    {
+      "id": "me",
+      "name": "我自己",
+      "role": "generalist",
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "temperature": 0.7,
+      "brief": "分别以三种视角思考：想要这个机会的建造者、怀疑一切的审查者、三年后必须承担后果的运营者。不要把分歧磨平。"
+    }
+  ],
+  "synthesizer": "me"
+}

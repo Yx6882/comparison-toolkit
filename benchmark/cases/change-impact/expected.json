@@ -1,0 +1,25 @@
+{
+  "name": "变更影响 · 谁还在用旧值",
+  "tool": "impact",
+  "argv": [
+    "impact",
+    "-d",
+    "{input}",
+    "--param",
+    "内孔",
+    "--old",
+    "32",
+    "--new",
+    "36",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/change-impact.json",
+  "must_find": [
+    "汇报备注.md|stale"
+  ],
+  "must_not_report": [
+    "设计说明.md|stale"
+  ],
+  "notes": "设计说明书写着新值 36，汇报备注还是旧值 32，供应商图纸是另一个型号 40（other）"
+}

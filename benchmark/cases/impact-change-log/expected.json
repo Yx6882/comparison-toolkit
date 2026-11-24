@@ -1,0 +1,26 @@
+{
+  "name": "变更影响 · 变更记录不该算待更新（编造陷阱）",
+  "tool": "impact",
+  "argv": [
+    "impact",
+    "-d",
+    "{input}",
+    "--param",
+    "内孔",
+    "--old",
+    "32",
+    "--new",
+    "36",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/change-impact.json",
+  "must_find": [
+    "供应商图纸.md|stale",
+    "工艺卡.md|stale"
+  ],
+  "must_not_report": [
+    "变更记录.md|stale"
+  ],
+  "notes": "变更记录表里同时写了旧值 Ø32 和新值 Ø36，那是历史说明，不该报 stale。真正的待更新项是供应商图纸（Ø32）、工艺卡（Ø32±0.05）、装配说明（约 Ø32）。"
+}

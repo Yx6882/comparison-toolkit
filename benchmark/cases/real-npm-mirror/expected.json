@@ -1,0 +1,18 @@
+{
+  "name": "真实数据 · npm 官方源 vs 国内镜像",
+  "tool": "reconcile",
+  "argv": [
+    "run",
+    "{input}/官方源.csv",
+    "{input}/镜像源.csv",
+    "--key",
+    "依赖",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/官方源_vs_镜像源.json",
+  "must_find": [],
+  "must_not_report": [],
+  "expect_empty": true,
+  "notes": "express@5.0.0 在 registry.npmjs.org 与 registry.npmmirror.com 上 32 个依赖完全一致——多源对照应当确认一致，而不是制造差异"
+}

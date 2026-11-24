@@ -1,0 +1,23 @@
+{
+  "name": "目录对照 · 改名不算删增（编造陷阱）",
+  "tool": "dir",
+  "argv": [
+    "dir",
+    "{input}/left",
+    "{input}/right",
+    "-o",
+    "{out}"
+  ],
+  "report": "{out}/reconcile-dir.json",
+  "must_find": [
+    "图A.png|renamed",
+    "说明.md|modified",
+    "旧文件.txt|only_left",
+    "新增.txt|only_right"
+  ],
+  "must_not_report": [
+    "图A.png|only_left",
+    "图A_v2.png|only_right"
+  ],
+  "notes": "图A.png 改名成 图A_v2.png，内容哈希完全一致。如果只按路径比对，会报成「删了一个、加了一个」——那不是用户想知道的事。"
+}
