@@ -69,7 +69,7 @@ AI 会自己 clone、读 SKILL、跑脚本。
 | [`spec-consistency`](spec-consistency/) | 多份文档里的参数是否一致；改了一个值谁还在用旧的 |
 | [`ledger-match`](ledger-match/) | 金额组合对账；进项税勾稽（凭证 vs 发票） |
 | [`ai-council`](ai-council/) | 多个模型/多个席位对同一问题独立回答再收敛 |
-| [`accounting-checks`](accounting-checks/) | 十大模块：报表勾稽/重算、凭证、余额表、银行流水、比率、折旧、存货、约当产量、坏账准备 |
+| [`accounting-checks`](accounting-checks/) | 十三个模块：报表勾稽/重算、凭证、余额表、流水、多期对比、现金流、比率、折旧、存货、约当产量、坏账、税额 |
 
 ## 快速开始
 

@@ -33,7 +33,7 @@
 | 工具 | 回答的问题 | 输入 |
 |---|---|---|
 | `reconcile` | 两张表哪里不一样 | 两份同结构明细表 |
-| `accounting-checks` | 这套账平不平 | 三大报表 / 凭证 / 余额表 / 银行流水 / 折旧 / 存货 / 成本 / 坏账 |
+| `accounting-checks` | 这套账平不平、动得反常吗、要交多少税 | 报表/凭证/余额表/流水/折旧/存货/成本/坏账/多期/现金流/税额 |
 | `ledger-match` | 凭证和发票对得上吗 | 凭证明细 + 发票明细 |
 
 ## 1. 两张表对照（reconcile）
@@ -101,6 +101,16 @@ python accounting-checks/scripts/inventory.py demo      # 三种存货计价
 python accounting-checks/scripts/equivalent_units.py demo  # 约当产量
 python accounting-checks/scripts/bad_debt.py demo       # 坏账准备账龄
 ```
+
+### 多期对比 / 现金流量 / 税额
+
+```bash
+python accounting-checks/scripts/periods.py demo    # 本期 vs 上期异常波动
+python accounting-checks/scripts/cashflow.py demo   # 间接法推导经营现金流
+python accounting-checks/scripts/tax.py demo        # 增值税/附加税/所得税
+```
+
+税额计算器只算金额，不做筹划——边界条件和其它模块一样。
 
 ### 报表独立重算
 

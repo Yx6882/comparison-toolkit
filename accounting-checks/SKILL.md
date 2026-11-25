@@ -17,13 +17,16 @@ license: MIT
 | 凭证合规 | 凭证本身有没有毛病 | `vouchers.py check -i 凭证.json` |
 | 科目余额表 | 期初+借−贷=期末吗 | `ledger.py check -i 余额表.json` |
 | 银行流水 | 一笔账对应哪几笔流水 | `bank.py match -i 流水.json` |
+| 多期对比 | 本期比上期哪项动得反常 | `periods.py compare -i 两期.json` |
 | 财务比率 | 各项比率是多少 | `ratios.py calc -i 报表.json` |
+| 现金流量 | 从净利润倒推经营现金流 | `cashflow.py check -i 数据.json` |
+| 税额 | 增值税/附加税/所得税各多少 | `tax.py calc -i 数据.json` |
 | 折旧 | 四种方法下每期提多少 | `depreciation.py calc -i 资产.json` |
 | 存货计价 | 三种方法下成本差多少 | `inventory.py calc -i 收发存.json` |
 | 约当产量 | 完工和在产各摊多少成本 | `equivalent_units.py calc -i 成本.json` |
 | 坏账准备 | 按账龄该提多少 | `bad_debt.py calc -i 应收.json` |
 
-每个都有 `demo` 子命令，不用准备数据就能跑（共十个模块）。
+每个都有 `demo` 子命令，不用准备数据就能跑（共十三个模块）。
 
 ```bash
 python scripts/statements.py demo
@@ -165,6 +168,62 @@ python scripts/recalc.py demo
 
 内置的是《企业会计准则》通用科目编码映射（1001/1122/2202…）。
 企业用自定义编码时，用 `mapping` 字段覆盖，否则重算没意义。
+
+
+## 多期对比
+
+```bash
+python scripts/periods.py compare -i 两期.json
+python scripts/periods.py demo
+```
+
+本期 vs 上期：变动额、变动率、按绝对额排序、超阈值异常项、新增/消失科目。
+
+**判定标准可调**：默认「变动率 ≥ 30% 且变动额 ≥ 1000 元」才算异常——
+只看百分比会把「10 元变 30 元」也报成 +200%。
+
+工具有意不说「这个变动是好是坏」。
+
+## 现金流量表间接法
+
+```bash
+python scripts/cashflow.py check -i 数据.json
+python scripts/cashflow.py demo
+```
+
+```
+净利润
++ 折旧、摊销、减值
+− 处置收益
+± 营运资本变动（应收/存货/应付）
+= 经营活动现金流量净额
+```
+
+和实际编制的现金流量表对比，差异就是线索。
+
+**注意符号**：存货减少对现金流是**正贡献**，显示成 `+30,000` 而不是 `−30,000`。
+
+## 税额计算
+
+```bash
+python scripts/tax.py calc -i 数据.json
+python scripts/tax.py demo
+```
+
+| 税种 | 公式 |
+|---|---|
+| 增值税 | 销项 − 进项 + 进项转出 − 上期留抵 |
+| 附加税 | 实缴增值税 ×（城建税 + 教育费附加 + 地方教育附加） |
+| 企业所得税 | （会计利润 ± 纳税调整 − 弥补亏损）× 税率 |
+
+三个设计要点：
+
+1. **留抵不缴税**：销项小于进项时，应纳为 0，差额结转为留抵，不交附加税
+2. **附加税默认算**：它是法定随增值税计征的；要关必须显式 `"surcharges": false`
+3. **城建税可配置**：市区 7%、县城/镇 5%、其他 1%
+
+**这是计算器，不是税务顾问。** 只算「按这些数字该交多少」，不算「怎么少交」。
+税率按输入值处理，实际适用以税务机关认定为准。
 
 ## 责任边界（必读）
 
