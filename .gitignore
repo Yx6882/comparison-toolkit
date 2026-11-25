@@ -21,3 +21,7 @@ Thumbs.db
 # 编辑器
 .idea/
 .vscode/
+
+# 运行产物（out-xxx 这种命名）
+out-*/
+
