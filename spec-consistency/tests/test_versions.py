@@ -31,7 +31,7 @@ def pair(name: str, value: float, unit: str, variant: str = "", table: bool = Tr
 
 class TestVersionedTable(unittest.TestCase):
     def test_header_detection(self):
-        self.assertTrue(sa.is_version_header("CR-2"))
+        self.assertTrue(sa.is_version_header("V1"))
         self.assertTrue(sa.is_version_header("V1"))
         self.assertTrue(sa.is_version_header("版本 3"))
         self.assertFalse(sa.is_version_header("取值"))
@@ -39,7 +39,7 @@ class TestVersionedTable(unittest.TestCase):
 
     def test_versioned_layout_emits_variant(self):
         rows = [
-            ["项目", "CR-2", "CR-3"],
+            ["项目", "V1", "V2"],
             ["内孔", "Ø32", "Ø36"],
             ["立柱中心距", "124", "128"],
         ]
@@ -47,13 +47,13 @@ class TestVersionedTable(unittest.TestCase):
         self.assertEqual(len(lines), 4)
         name, variant, cell = lines[0][1].split("\t")
         self.assertEqual(name, "内孔")
-        self.assertEqual(variant, "CR-2")
+        self.assertEqual(variant, "V1")
         self.assertEqual(cell, "Ø32")
 
     def test_parse_pairs_handles_variant(self):
-        pairs = sa.parse_pairs("内孔\tCR-2\tØ32", "doc.md#tblr2")
+        pairs = sa.parse_pairs("内孔\tV1\tØ32", "doc.md#tblr2")
         self.assertEqual(len(pairs), 1)
-        self.assertEqual(pairs[0].variant, "CR-2")
+        self.assertEqual(pairs[0].variant, "V1")
         self.assertEqual(pairs[0].value, 32)
         self.assertEqual(pairs[0].unit, "mm")
 
@@ -93,7 +93,7 @@ class TestCompare(unittest.TestCase):
                 pair("内孔", 32, "mm", table=True),
             ]
         }
-        changes = sa.compare_versions(docs, "CR-2", "CR-3")
+        changes = sa.compare_versions(docs, "V1", "V2")
         self.assertEqual(changes, [])
 
     def test_compare_dirs(self):
@@ -112,18 +112,18 @@ class TestChangelogCoverage(unittest.TestCase):
             sa.VersionChange("膝点电流", "膝点电流", pair("膝点电流", 71, "A"), pair("膝点电流", 75, "A"), 0.056, "changed"),
         ]
         changelog = "| D-01 | 立柱中心距 124→128 | 已改 |"
-        report = sa.render_version_report(changes, "CR-2", "CR-3", changelog_name="变更单.md", changelog_text=changelog)
+        report = sa.render_version_report(changes, "V1", "V2", changelog_name="变更单.md", changelog_text=changelog)
         self.assertIn("未提及 1", report)
         self.assertIn("膝点电流", report)
 
     def test_column_mode_wording(self):
-        report = sa.render_version_report([], "CR-2", "CR-3", column_mode=True)
+        report = sa.render_version_report([], "V1", "V2", column_mode=True)
         self.assertIn("两列", report)
 
     def test_added_hidden_by_default(self):
         changes = [sa.VersionChange("新参数", "新参数", None, pair("新参数", 1, "mm"), None, "added")]
-        hidden = sa.render_version_report(changes, "CR-2", "CR-3")
-        shown = sa.render_version_report(changes, "CR-2", "CR-3", show_added=True)
+        hidden = sa.render_version_report(changes, "V1", "V2")
+        shown = sa.render_version_report(changes, "V1", "V2", show_added=True)
         self.assertIn("--show-added", hidden)
         self.assertIn("新增", shown)
 

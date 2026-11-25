@@ -57,12 +57,12 @@ findings: 3 high / 3 medium / 2 low
 
 ---
 
-## 版本对比：CR-2 → CR-3 到底改了什么
+## 版本对比：V1 → V2 到底改了什么
 
 ```bash
 python scripts/spec_audit.py versions \
-  --from-dir ./pkg_CR2 --to-dir ./pkg_CR3 \
-  --changelog ./pkg_CR3/11_变更单_CR2到CR3.md -o reports
+  --from-dir ./pkg_v1 --to-dir ./pkg_v2 \
+  --changelog ./pkg_v2/11_变更单_v1到v2.md -o reports
 ```
 
 输出三件事，按重要性排序：
@@ -71,16 +71,16 @@ python scripts/spec_audit.py versions \
 2. **哪些变化变更单里没提**——最容易在交付时变成惊喜的那部分
 3. 哪些参数新增/消失（默认折叠，`--show-added` 展开）
 
-如果参数写在同一个表格的版本列里（`| 项目 | CR-2 | CR-3 |`），改成一个命令：
+如果参数写在同一个表格的版本列里（`| 项目 | V1 | V2 |`），改成一个命令：
 
 ```bash
-python scripts/spec_audit.py versions -d ./docs --from CR-2 --to CR-3
+python scripts/spec_audit.py versions -d ./docs --from V1 --to V2
 ```
 
 真实跑一套整改资料的输出（节选）：
 
 ```
-pkg_CR2 → pkg_CR3: 6 项变化
+pkg_v1 → pkg_v2: 6 项变化
   立柱中心距: 124 mm → 128 mm  (+3.2%)
   膝点电流: 71 A → 75 A  (+5.6%)
 

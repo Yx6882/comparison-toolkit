@@ -1,6 +1,6 @@
 ---
 name: spec-consistency
-description: Audit whether a set of product documents agree with each other — spec sheet, deck, quote, manual, README — and report every number that differs (512 Wh vs 500 Wh), every unit that drifts (6.0 kg vs 6000 g), every parameter that appears in one document and vanishes in another; also diff two revisions of the same spec (CR-2 vs CR-3) to show what actually changed and which changes the change log never recorded. Use when preparing a product launch, a bid or tender package, a customer-facing pack, a datasheet, or any release where the same specification is repeated across Word, PowerPoint, Excel and Markdown; also use when a sales deck and a spec sheet may disagree, when reviewing a CR/V revision, or when asked to 核对资料包 / 检查参数一致性 / 统一规格说法 / 校对报价单与规格书 / 对比两版改了什么 / 变更单有没有漏. Produces a severity-ranked report with the source sentence for every finding.
+description: Audit whether a set of product documents agree with each other — spec sheet, deck, quote, manual, README — and report every number that differs (512 Wh vs 500 Wh), every unit that drifts (6.0 kg vs 6000 g), every parameter that appears in one document and vanishes in another; also diff two revisions of the same spec (V1 vs V2) to show what actually changed and which changes the change log never recorded. Use when preparing a product launch, a bid or tender package, a customer-facing pack, a datasheet, or any release where the same specification is repeated across Word, PowerPoint, Excel and Markdown; also use when a sales deck and a spec sheet may disagree, when reviewing a CR/V revision, or when asked to 核对资料包 / 检查参数一致性 / 统一规格说法 / 校对报价单与规格书 / 对比两版改了什么 / 变更单有没有漏. Produces a severity-ranked report with the source sentence for every finding.
 license: MIT
 ---
 
@@ -63,18 +63,18 @@ python scripts/spec_audit.py scan ./product-material -o reports
 python scripts/spec_audit.py scan ./material --fail-on high   # CI gate
 ```
 
-## Version comparison — "what changed between CR-2 and CR-3?"
+## Version comparison — "what changed between V1 and V2?"
 
 Two input shapes, same command:
 
 ```bash
 # two revisions living in two folders (the usual real-project shape)
 python scripts/spec_audit.py versions \
-  --from-dir ./pkg_CR2 --to-dir ./pkg_CR3 \
-  --changelog ./pkg_CR3/11_变更单_CR2到CR3.md -o reports
+  --from-dir ./pkg_v1 --to-dir ./pkg_v2 \
+  --changelog ./pkg_v2/11_变更单_v1到v2.md -o reports
 
-# one table with version columns: | 项目 | CR-2 | CR-3 |
-python scripts/spec_audit.py versions -d ./docs --from CR-2 --to CR-3
+# one table with version columns: | 项目 | V1 | V2 |
+python scripts/spec_audit.py versions -d ./docs --from V1 --to V2
 ```
 
 It answers three questions, in this order of importance:

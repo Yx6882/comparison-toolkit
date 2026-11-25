@@ -178,7 +178,7 @@ class Pair:
     unit: str
     context: str
     location: str
-    variant: str = ""  # e.g. "CR-2" for a version column in a transposed table
+    variant: str = ""  # e.g. "V1" for a version column in a transposed table
     from_table: bool = False  # tables are specs; prose is discussion
     text_value: str = ""  # 「是/否/待定」这类非数值规格，只做覆盖检查
 
@@ -196,7 +196,7 @@ CELL_VALUE_RE = re.compile(
 
 
 def parse_value(text: str) -> tuple[float, str] | None:
-    """Parse a single table cell: `Ø112（CR-3）`, `**0.10**`, `≈1.25 kg`."""
+    """Parse a single table cell: `Ø112（V2）`, `**0.10**`, `≈1.25 kg`."""
     match = CELL_VALUE_RE.search(clean_line(text))
     if not match:
         return None
@@ -334,8 +334,8 @@ def table_lines(rows: Iterable[Sequence[str]], prefix: str) -> Iterator[tuple[st
 
     key-value   header `参数 | 规格`, rows `电池容量 | 512 Wh`
     wide        header `型号 | 电池容量 | 单价`, rows `PX-200 | 500 Wh | 1299 元`
-    versioned   header `项目 | CR-1 | CR-2 | CR-3`, rows `内孔 | Ø28.5 | Ø32 | Ø36`
-                emitted as `内孔<TAB>CR-2<TAB>Ø32` so the version survives
+    versioned   header `项目 | V0 | V1 | V2`, rows `内孔 | Ø28.5 | Ø32 | Ø36`
+                emitted as `内孔<TAB>V1<TAB>Ø32` so the version survives
     """
     clean = [[(cell or "").strip() for cell in row] for row in rows]
     clean = [row for row in clean if any(row)]
@@ -1381,8 +1381,8 @@ def build_parser() -> argparse.ArgumentParser:
     versions = sub.add_parser("versions", help="diff two revisions of a parameter table")
     versions.add_argument("path", nargs="?", default=None, help="folder to scan (or use -d)")
     versions.add_argument("-d", "--directory", default=".")
-    versions.add_argument("--from", dest="from_version", default="", help="old column header, e.g. CR-2")
-    versions.add_argument("--to", dest="to_version", default="", help="new column header, e.g. CR-3")
+    versions.add_argument("--from", dest="from_version", default="", help="old column header, e.g. V1")
+    versions.add_argument("--to", dest="to_version", default="", help="new column header, e.g. V2")
     versions.add_argument("--from-dir", default="", help="folder holding the old revision")
     versions.add_argument("--to-dir", default="", help="folder holding the new revision")
     versions.add_argument("--changelog", default="", help="markdown change log to check coverage against")
