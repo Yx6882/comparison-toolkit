@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""route — 对照万物的总入口：看输入，选工具，跑起来。
+"""route — 对照的总入口：看输入，选工具，跑起来。
 
     python scripts/route.py which --left 合同A.docx --right 合同B.docx
     python scripts/route.py run   --left 合同A.docx --right 合同B.docx
@@ -237,7 +237,7 @@ def cmd_selftest(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="route.py", description="对照万物总入口：文件/物物/对象对标准")
+    parser = argparse.ArgumentParser(prog="route.py", description="对照总入口：文件/物物/对象对标准")
     parser.add_argument("--version", action="version", version=f"route {VERSION}")
     sub = parser.add_subparsers(dest="command")
 

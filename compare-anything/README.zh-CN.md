@@ -1,4 +1,4 @@
-# compare-anything · 对照万物总入口
+# compare-anything · 对照总入口
 
 三种对照，一份契约：
 

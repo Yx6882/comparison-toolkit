@@ -1,4 +1,4 @@
-# 对照万物 · Comparison Toolkit
+# 对照 · Comparison Toolkit
 
 [![tests](https://github.com/Yx6882/comparison-toolkit/actions/workflows/tests.yml/badge.svg)](https://github.com/Yx6882/comparison-toolkit/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
