@@ -23,6 +23,7 @@ VERSION = "1.0.0"
 ROOT = Path(__file__).resolve().parents[1]
 RUBRIC_DIR = ROOT / "rubrics" / "industry"
 MARKET_FILE = ROOT.parent / "data" / "industry-financials.json"
+HISTORY_FILE = ROOT.parent / "data" / "industry-history.json"
 
 # 我们的行业 key -> 东财（申万二级）行业名。没有对应关系的留空。
 MAPPING: dict[str, str] = {
@@ -202,6 +203,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
     market = json.loads(MARKET_FILE.read_text(encoding="utf-8"))
     industries = market["industries"]
+    history = json.loads(HISTORY_FILE.read_text(encoding="utf-8")) if HISTORY_FILE.exists() else {}
 
     matched: list[tuple[str, str, dict]] = []
     unmatched_key: list[str] = []
@@ -260,6 +262,22 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "样本少或行业以小微为主时，这个数仅供参考，不代表你所在市场的常态。"
                 ),
             }
+            # 跨期趋势：毛利率在涨还是跌
+            trend = (history.get("trend") or {}).get(board)
+            if trend:
+                rubric["market_data"]["trend"] = {
+                    "series": trend["series"],
+                    "change": trend["change"],
+                    "direction": trend["direction"],
+                }
+            # 规模差异：大中小公司的毛利率差别
+            scale = (
+                ((history.get("periods") or {}).get("2026 三季报") or {}).get("by_scale") or {}
+            ).get(board)
+            if scale:
+                rubric["market_data"]["by_scale"] = {
+                    tier: info["median"] for tier, info in scale.items()
+                }
         path.write_text(json.dumps(rubric, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         written += 1
     print(f"\n已更新 {written} 个 rubric（其中 {len(matched)} 个带真实数据）")

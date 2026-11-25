@@ -352,10 +352,39 @@ def render_markdown(rubric: Rubric, results: list[Result], *, source_label: str 
         ])
         if nm:
             lines.append(f"| 净利率 | {nm.get('median')}% | {nm.get('p25')}% – {nm.get('p75')}% |")
+        lines.append("")
+
+        trend = market.get("trend") or {}
+        series = trend.get("series") or []
+        if len(series) >= 2:
+            path_text = " → ".join(f"{item['median']}%" for item in reversed(series))
+            arrow = "↘" if trend.get("direction") == "下降" else ("↗" if trend.get("direction") == "上升" else "→")
+            lines.extend([
+                f"**毛利率走势**：{path_text} （{trend.get('change'):+.2f}pp {arrow} {trend.get('direction')}）",
+                "",
+            ])
+
+        by_scale = market.get("by_scale") or {}
+        if by_scale:
+            lines.extend([
+                "**按营收分档**（同期，同一批上市公司）：",
+                "",
+                "| 规模 | 毛利率中位数 |",
+                "|---|---|",
+            ])
+            for tier, value in by_scale.items():
+                lines.append(f"| {tier} | {value}% |")
+            values = list(by_scale.values())
+            if len(values) >= 2 and max(values) - min(values) >= 5:
+                lines.extend([
+                    "",
+                    f"> 大中小公司差 {max(values) - min(values):.2f}pp——**规模不同，同一指标的合理值也不同**。",
+                ])
+            lines.append("")
+
         lines.extend([
-            "",
             "> 上市公司规模和规范度都高于中小企业。餐饮、便利店这类以小微为主的行业，",
-            "> 上市公司样本又少又大，中位数只能当参考——**不是“你该做到多少”的标准**。",
+            "> 上市公司样本又少又大，中位数只能当参考——**不是「你该做到多少」的标准**。",
             "",
         ])
 
