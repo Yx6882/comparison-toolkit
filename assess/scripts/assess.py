@@ -61,6 +61,7 @@ class Rubric:
     disclaimer: str = ""
     items: list[Item] = dataclasses.field(default_factory=list)
     summary_rules: list[str] = dataclasses.field(default_factory=list)
+    market_data: dict[str, Any] = dataclasses.field(default_factory=dict)
 
     def find_item(self, name: str) -> Item | None:
         needle = normalize_key(name)
@@ -102,6 +103,7 @@ def load_rubric(path: Path) -> Rubric:
         source=str(data.get("source") or ""),
         disclaimer=str(data.get("disclaimer") or ""),
         items=items,
+        market_data=data.get("market_data") or {},
         summary_rules=[str(r) for r in data.get("summary_rules") or []],
     )
 
@@ -333,6 +335,29 @@ def render_markdown(rubric: Rubric, results: list[Result], *, source_label: str 
     missing = [r for r in results if r.missing]
     if missing:
         lines.extend(["## 未提供的指标", ""] + [f"- {r.name}" for r in missing] + [""])
+
+    # 上市公司真实数据对比：不替换经验区间，两个数并列，让人自己判断
+    market = rubric.market_data or {}
+    gm = market.get("gross_margin") or {}
+    nm = market.get("net_margin") or {}
+    if gm:
+        lines.extend([
+            "## A 股同行业真实数据",
+            "",
+            f"来源：{market.get('board')}（{market.get('period')}，样本 {gm.get('count')} 家上市公司）",
+            "",
+            "| 指标 | 上市公司中位数 | 25%–75% 区间 |",
+            "|---|---|---|",
+            f"| 毛利率 | {gm.get('median')}% | {gm.get('p25')}% – {gm.get('p75')}% |",
+        ])
+        if nm:
+            lines.append(f"| 净利率 | {nm.get('median')}% | {nm.get('p25')}% – {nm.get('p75')}% |")
+        lines.extend([
+            "",
+            "> 上市公司规模和规范度都高于中小企业。餐饮、便利店这类以小微为主的行业，",
+            "> 上市公司样本又少又大，中位数只能当参考——**不是“你该做到多少”的标准**。",
+            "",
+        ])
 
     ranked = sorted((r for r in results if not r.missing and r.priority > 0), key=lambda r: -r.priority)
     if ranked and rubric.kind != "health":

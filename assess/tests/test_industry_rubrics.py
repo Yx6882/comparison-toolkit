@@ -87,5 +87,43 @@ class TestGeneratedFiles(unittest.TestCase):
         self.assertEqual(target.level, "偏高")
 
 
+class TestMarketData(unittest.TestCase):
+    """上市公司真实数据接入（东方财富）。"""
+
+    def test_market_file_exists(self):
+        market = ROOT.parent / "data" / "industry-financials.json"
+        self.assertTrue(market.exists(), "缺少 data/industry-financials.json")
+
+    def test_market_file_structure(self):
+        market = ROOT.parent / "data" / "industry-financials.json"
+        data = json.loads(market.read_text(encoding="utf-8"))
+        self.assertGreater(data["company_count"], 5000, "应覆盖全市场")
+        self.assertGreater(data["industry_count"], 100)
+        self.assertIn("caveat", data, "必须带口径说明")
+
+    def test_rubric_carries_market_data(self):
+        rubric = az.load_rubric(az.resolve_rubric("industry-software-outsourcing"))
+        self.assertTrue(rubric.market_data, "软件外包应有真实数据")
+        self.assertEqual(rubric.market_data["board"], "软件开发")
+        self.assertGreater(rubric.market_data["gross_margin"]["count"], 100)
+
+    def test_render_shows_market_comparison(self):
+        rubric = az.load_rubric(az.resolve_rubric("industry-software-outsourcing"))
+        results = az.assess(rubric, {"毛利率": 44})
+        report = az.render_markdown(rubric, results)
+        self.assertIn("A 股同行业真实数据", report)
+        self.assertIn("上市公司", report)
+        self.assertIn("44.24", report, "应显示真实毛利率中位数")
+
+    def test_most_industries_have_data(self):
+        files = sorted(INDUSTRY_DIR.glob("*.json"))
+        with_data = 0
+        for path in files:
+            rubric = json.loads(path.read_text(encoding="utf-8"))
+            if rubric.get("market_data"):
+                with_data += 1
+        self.assertGreaterEqual(with_data, 80, "至少 80 个行业能对上真实数据")
+
+
 if __name__ == "__main__":
     unittest.main()
