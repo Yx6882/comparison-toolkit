@@ -183,11 +183,45 @@ python scripts/business.py demo
 
 报告里会提示：`> 大中小公司差 8.92pp——规模不同，同一指标的合理值也不同。`
 
+### 年内走势（季报）
+
+```bash
+python scripts/fetch_industry_quarters.py --write
+```
+
+抓 2026Q1 / H1 / Q1-Q3 三个累计期，看毛利率在年内怎么走。
+
+**口径警告**：季报是累计数，Q3 的毛利率是前三季度综合，不是第三季度单季。
+所以这里的「年内走势」被平均过了，**看不出真正的淡旺季波动**。
+
+但变化大的行业仍然能看出信号：
+
+| 行业 | Q1 → H1 → Q1-Q3 | 变化 |
+|---|---|---|
+| 旅游及景区 | 27.09% → 28.75% → 38.95% | **+11.86pp** |
+| 种植业 | 28.41% → 18.02% → 16.68% | −11.73pp |
+| 冶钢原料 | 22.88% → 33.31% → 33.37% | +10.49pp |
+| 航空机场 | 18.09% → 8.69% → 10.00% | −8.09pp |
+
+**旅游 +11.86pp** 是暑期旺季的信号——Q3 含 7–8 月，就算被前三季度平均过，
+仍然拉高了近 12 个百分点。真实的单季波动只会更大。
+
+### 分地区：没做
+
+试了 5 个地区字段名（`PROVINCE` / `AREA` / `REGION` / `PROVINCE_NAME` / `ADDRESS`），
+该接口全部返回空。而且：
+
+**按注册地给上市公司分组意义不大**——一个全国性公司注册在哪个市，都不影响它的经营。
+
+城市维度的价值在**调整参数**（租金、人力、客单价），这个 `business.py` 的城市系数在做，
+不需要抓上市公司数据。
+
 ### 怎么更新数据
 
 ```bash
 python scripts/fetch_industry_data.py --write        # 单期（约 1 分钟）
 python scripts/fetch_industry_history.py --write    # 多期（约 3 分钟，含趋势和规模）
+python scripts/fetch_industry_quarters.py --write   # 季报（约 2 分钟，年内走势）
 python scripts/attach_market_data.py --write        # 重新接到规则上
 ```
 
