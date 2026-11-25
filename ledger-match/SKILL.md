@@ -6,6 +6,14 @@ license: MIT
 
 # Ledger match
 
+
+## 责任边界
+
+只做金额组合搜索和税额分组比对，**不判断税务处理是否合规**。
+
+勾稽结果不能直接用于纳税申报，需经税务师复核。纳税义务由纳税人承担（《税收征收管理法》）。
+
+
 ## The question it answers
 
 One sheet says `2000`. Another sheet says `500, 500, 500, 500`. Are they the

@@ -16,6 +16,13 @@ python scripts/reconcile.py run examples/accounting/应收明细账.xlsx \
     examples/accounting/客户对账单.xlsx --key 客户名称 -o accounting-out
 ```
 
+## 责任边界
+
+只做逐行核对和差异定位，**不判断哪边对**。
+
+对账结果不能直接作为审计证据或税务申报依据，需经注册会计师、税务师复核。
+会计责任由单位负责人承担（《会计法》第四条）。
+
 ## 三条硬规则
 
 这套工具对会计场景专门做了三件事，和通用数字比较不同：

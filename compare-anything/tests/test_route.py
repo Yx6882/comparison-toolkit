@@ -14,9 +14,39 @@ import route  # noqa: E402
 
 
 def ns(**kwargs) -> "route.argparse.Namespace":
-    base = dict(left=None, right=None, quantity=1.0, unit="斤", rubric=None, kv=None, input=None, out=None, key=None)
+    base = dict(left=None, right=None, quantity=1.0, unit="斤", rubric=None, kv=None, input=None, out=None, key=None, task="auto")
     base.update(kwargs)
     return route.argparse.Namespace(**base)
+
+
+class TestAccountingRouting(unittest.TestCase):
+    def test_explicit_task(self):
+        tool, reason, argv = route.classify(ns(task="bank", input="流水.json"))
+        self.assertEqual(tool, "accounting")
+        self.assertEqual(argv[0], "match")
+
+    def test_filename_hint(self):
+        tool, _reason, argv = route.classify(ns(input="银行流水明细.json"))
+        self.assertEqual(tool, "accounting")
+        self.assertEqual(argv[0], "match")
+
+    def test_neutral_json_not_routed(self):
+        tool, _reason, _argv = route.classify(ns(input="随便.json"))
+        self.assertEqual(tool, "")
+
+    def test_task_without_input_fails(self):
+        tool, reason, _argv = route.classify(ns(task="ledger"))
+        self.assertEqual(tool, "")
+        self.assertIn("--input", reason)
+
+    def test_media_routed_to_reconcile(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            left, right = Path(tmp) / "a.png", Path(tmp) / "b.png"
+            left.write_bytes(b"\x89PNG")
+            right.write_bytes(b"\x89PNG")
+            tool, reason, _argv = route.classify(ns(left=str(left), right=str(right)))
+            self.assertEqual(tool, "reconcile")
+            self.assertIn("媒体", reason)
 
 
 class TestClassify(unittest.TestCase):

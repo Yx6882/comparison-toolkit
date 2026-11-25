@@ -35,7 +35,7 @@ SUPPORTED_SUFFIXES = {".docx", ".pptx", ".xlsx", ".md", ".txt", ".csv"}
 # ---------------------------------------------------------------------------
 
 UNIT_TABLE: dict[str, dict[str, float]] = {
-    "mass": {"g": 1, "kg": 1000, "t": 1_000_000, "克": 1, "千克": 1000, "公斤": 1000, "斤": 500},
+    "mass": {"g": 1, "kg": 1000, "t": 1_000_000, "吨": 1_000_000, "克": 1, "千克": 1000, "公斤": 1000, "斤": 500},
     "length": {
         "mm": 1, "cm": 10, "m": 1000, "km": 1_000_000,
         "in": 25.4, "英寸": 25.4, "寸": 33.33, "毫米": 1, "厘米": 10, "米": 1000,
@@ -51,6 +51,8 @@ UNIT_TABLE: dict[str, dict[str, float]] = {
     "speed": {"km/h": 1, "kmh": 1, "m/s": 3.6, "mph": 1.609},
     "voltage": {"v": 1, "kv": 1000, "伏": 1},
     "current": {"a": 1, "ma": 0.001, "安": 1},
+    # 力：1 吨力 = 1000 kgf = 9806.65 N。工装图纸常用「吨力」而 BOM 写 N。
+    "force": {"n": 1, "kn": 1000, "牛": 1, "千牛": 1000, "kgf": 9.80665, "公斤力": 9.80665, "吨力": 9806.65},
     "money": {"元": 1, "人民币": 1, "美元": 7.0, "usd": 7.0, "rmb": 1, "cny": 1, "万元": 10000},
 }
 
@@ -178,6 +180,13 @@ class Pair:
     location: str
     variant: str = ""  # e.g. "CR-2" for a version column in a transposed table
     from_table: bool = False  # tables are specs; prose is discussion
+    text_value: str = ""  # 「是/否/待定」这类非数值规格，只做覆盖检查
+
+
+TEXT_VALUE_RE = re.compile(
+    r"^\s*\|?\s*(?P<name>[^\s|：:]{2,12})\s*[|：:]\s*(?P<value>是|否|有|无|待定|待确认|TBD|N/?A)\s*\|?\s*$",
+    re.IGNORECASE,
+)
 
 
 CELL_VALUE_RE = re.compile(
@@ -247,6 +256,25 @@ def parse_pairs(line: str, location: str) -> list[Pair]:
                 from_table=_from_table(location),
             )
         ]
+
+    # 文本型规格（是/否/待定）：不参与数值比较，但必须被看见——
+    # 「机械爪是否兼作磁芯」只在一份文档出现时，它的缺席就是证据不足。
+    text_match = TEXT_VALUE_RE.match(line)
+    if text_match:
+        raw_name = text_match.group("name").strip()
+        if not is_noise(raw_name):
+            return [
+                Pair(
+                    name=normalize_spec_name(raw_name),
+                    display_name=raw_name,
+                    value=0.0,
+                    unit="",
+                    context=line.strip()[:160],
+                    location=location,
+                    from_table=_from_table(location),
+                    text_value=text_match.group("value"),
+                )
+            ]
 
     line = clean_line(line)
     out: list[Pair] = []
@@ -498,6 +526,40 @@ def compare(docs: dict[str, list[Pair]], *, tolerance: float = 0.005) -> tuple[l
         label = next(iter(next(iter(per_doc.values())))).display_name
         if variant:
             label = f"{label}（{variant}）"
+
+        # 文本型规格（是/否/待定）：只做覆盖和一致性检查，不做数值比较
+        text_pairs = [p for pairs in per_doc.values() for p in pairs if p.text_value]
+        if text_pairs:
+            if len(per_doc) < 2:
+                findings.append(
+                    Finding(
+                        kind="only-in-some",
+                        severity="low",
+                        param=param,
+                        label=label,
+                        detail=(
+                            f"只有《{next(iter(per_doc))}》提到这个非数值参数"
+                            "（是/否类），其他文档没写——证据不足，不能据此下结论"
+                        ),
+                        values=[_as_value(p, doc_name) for doc_name, pairs in per_doc.items() for p in pairs],
+                        suggestion="确认其他文档是否应说明这一项；在补齐前，不要把它当成已确认的设计事实。",
+                    )
+                )
+            else:
+                distinct = {p.text_value for p in text_pairs}
+                if len(distinct) > 1:
+                    findings.append(
+                        Finding(
+                            kind="conflict",
+                            severity="high",
+                            param=param,
+                            label=label,
+                            detail=f"跨文档取值不一致：{' / '.join(sorted(distinct))}",
+                            values=[_as_value(p, doc_name) for doc_name, pairs in per_doc.items() for p in pairs],
+                            suggestion="确定唯一结论，其余文档同步；如果本就不确定，写「待定」而不是硬写是/否。",
+                        )
+                    )
+            continue
 
         # 1. Same document, same parameter, different value.
         for doc_name, pairs in per_doc.items():
@@ -776,7 +838,8 @@ def render_version_report(
 def _as_value(pair: Pair, doc: str) -> dict[str, Any]:
     return {
         "document": doc,
-        "value": pair.value,
+        # 文本型参数显示原文（是/否/待定），数值型保持原样
+        "value": pair.text_value if pair.text_value else pair.value,
         "unit": pair.unit,
         "context": pair.context,
         "location": pair.location,
@@ -814,7 +877,10 @@ def render_markdown(root: Path, docs: dict[str, list[Pair]], findings: list[Find
             lines.append("| 文档 | 值 | 原文 |")
             lines.append("|---|---|---|")
             for value in item.values:
-                shown = f"{_fmt(value['value'])} {value['unit']}"
+                if isinstance(value["value"], str):
+                    shown = value["value"]  # 文本型参数（是/否/待定）
+                else:
+                    shown = f"{_fmt(value['value'])} {value['unit']}"
                 lines.append(f"| {value['document']} | {shown} | {_escape(value['context'])} |")
             lines.append("")
             lines.append(f"**建议**：{item.suggestion}")
@@ -854,7 +920,11 @@ def render_markdown(root: Path, docs: dict[str, list[Pair]], findings: list[Find
     by_param: dict[str, dict[str, str]] = {}
     for doc, pairs in docs.items():
         for pair in pairs:
-            by_param.setdefault(pair.display_name, {}).setdefault(doc, f"{_fmt(pair.value)} {pair.unit}")
+            if pair.text_value:
+                shown = pair.text_value  # 是/否/待定这类非数值规格
+            else:
+                shown = f"{_fmt(pair.value)} {pair.unit}"
+            by_param.setdefault(pair.display_name, {}).setdefault(doc, shown)
     for label, per_doc in sorted(by_param.items()):
         row = " | ".join(per_doc.get(doc, "—") for doc in docs)
         lines.append(f"| {label} | {row} |")

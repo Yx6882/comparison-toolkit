@@ -28,7 +28,7 @@ jobs:
       - name: 各 skill 单元测试
         shell: pwsh
         run: |
-          $dirs = @('ai-council','spec-consistency','ledger-match','reconcile','assess','exchange','compare-anything')
+          $dirs = @('ai-council','spec-consistency','ledger-match','reconcile','assess','exchange','compare-anything','accounting-checks')
           $failed = @()
           foreach ($d in $dirs) {
             Write-Host "===== $d ====="

@@ -29,6 +29,7 @@ SKILLS = [
     "assess",
     "exchange",
     "compare-anything",
+    "accounting-checks",
 ]
 
 # 常见客户端的 skills 目录（存在哪个就装哪个）
