@@ -160,6 +160,137 @@ class TestLease(unittest.TestCase):
         self.assertGreater(check.profitable_months, 30)
 
 
+class TestSensitivity(unittest.TestCase):
+    def test_three_variables(self):
+        rows = bs.analyze_sensitivity(base())
+        self.assertEqual(len(rows), 3)
+        self.assertEqual({r.name for r in rows}, {"月收入", "变动成本率", "固定成本"})
+
+    def test_revenue_positive_impact(self):
+        rows = {r.name: r for r in bs.analyze_sensitivity(base())}
+        self.assertGreater(rows["月收入"].delta_net, 0)
+
+    def test_costs_negative_impact(self):
+        rows = {r.name: r for r in bs.analyze_sensitivity(base())}
+        self.assertLess(rows["变动成本率"].delta_net, 0)
+        self.assertLess(rows["固定成本"].delta_net, 0)
+
+    def test_sorted_by_absolute_impact(self):
+        rows = bs.analyze_sensitivity(base())
+        values = [abs(r.delta_net) for r in rows]
+        self.assertEqual(values, sorted(values, reverse=True))
+
+    def test_zero_net_returns_empty(self):
+        zero = base(monthly_revenue=83333.333, monthly_fixed_cost=50000)
+        rows = bs.analyze_sensitivity(zero)
+        self.assertIsInstance(rows, list)
+
+
+class TestSeasonal(unittest.TestCase):
+    def test_requires_twelve_factors(self):
+        self.assertIsNone(bs.analyze_seasonal(base(monthly_factors=[1, 2, 3])))
+
+    def test_twelve_months(self):
+        result = bs.analyze_seasonal(base(monthly_factors=[1.0] * 12))
+        rows, _total, _lm, _lv = result
+        self.assertEqual(len(rows), 12)
+
+    def test_flat_year_matches_monthly(self):
+        result = bs.analyze_seasonal(base(monthly_factors=[1.0] * 12))
+        _rows, total, _lm, _lv = result
+        self.assertAlmostEqual(total, 22000 * 12, places=2)
+
+    def test_lowest_month_detected(self):
+        factors = [0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        result = bs.analyze_seasonal(base(monthly_factors=factors))
+        _rows, _total, lowest_month, lowest_value = result
+        self.assertIn(lowest_month, (1, 2))
+        self.assertLess(lowest_value, 0)
+
+
+class TestPlatform(unittest.TestCase):
+    def platform(self, **overrides) -> dict:
+        spec = {
+            "price": 100, "product_cost": 35, "commission_rate": 0.06,
+            "promotion_rate": 0.18, "shipping": 6, "return_rate": 0.15,
+        }
+        spec.update(overrides)
+        return {"platform": spec}
+
+    def test_no_platform_returns_none(self):
+        self.assertIsNone(bs.analyze_platform(base()))
+
+    def test_net_profit_with_returns(self):
+        result = bs.analyze_platform(self.platform())
+        # 0.85×(100-6-18-35-6) + 0.15×(-(18+12)) = 29.75 - 4.5 = 25.25
+        self.assertAlmostEqual(result.net_profit, 25.25, places=2)
+
+    def test_zero_returns(self):
+        result = bs.analyze_platform(self.platform(return_rate=0.0))
+        self.assertAlmostEqual(result.net_profit, 100 - 6 - 18 - 35 - 6, places=2)
+
+    def test_high_return_rate_flagged(self):
+        result = bs.analyze_platform(self.platform(return_rate=0.25))
+        self.assertIn("退货", result.note)
+
+    def test_losing_money_flagged(self):
+        result = bs.analyze_platform(self.platform(promotion_rate=0.5))
+        self.assertLess(result.net_profit, 0)
+        self.assertTrue(result.note)
+
+
+class TestLabor(unittest.TestCase):
+    def labor(self, **overrides) -> dict:
+        spec = {"headcount": 5, "monthly_wage": 6000, "insurance_base": 6000,
+                "housing_fund_rate": 0.07}
+        spec.update(overrides)
+        return {"labor": spec}
+
+    def test_no_labor_returns_none(self):
+        self.assertIsNone(bs.analyze_labor(base()))
+
+    def test_total_cost(self):
+        result = bs.analyze_labor(self.labor())
+        # 工资 30000 + 社保 5×6000×0.257 + 公积金 5×6000×0.07
+        expected = 30000 + 5 * 6000 * 0.257 + 5 * 6000 * 0.07
+        self.assertAlmostEqual(result.total, expected, places=2)
+
+    def test_overhead_ratio(self):
+        result = bs.analyze_labor(self.labor())
+        self.assertGreater(result.overhead_ratio, 0.2)
+        self.assertLess(result.overhead_ratio, 0.4)
+
+    def test_custom_rates(self):
+        low = bs.analyze_labor(self.labor(insurance_rates={"pension": 0.08}))
+        high = bs.analyze_labor(self.labor())
+        self.assertLess(low.insurance, high.insurance)
+
+    def test_zero_headcount(self):
+        self.assertIsNone(bs.analyze_labor(self.labor(headcount=0)))
+
+
+class TestCompare(unittest.TestCase):
+    def test_compare_two_stores(self):
+        data = {"stores": [
+            {"name": "A", "investment": 500000, "monthly_revenue": 120000,
+             "variable_cost_rate": 0.40, "monthly_fixed_cost": 50000},
+            {"name": "B", "investment": 300000, "monthly_revenue": 80000,
+             "variable_cost_rate": 0.45, "monthly_fixed_cost": 30000},
+        ]}
+        rows = bs.compare_stores(data)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0][0], "A")
+
+    def test_empty_stores(self):
+        self.assertEqual(bs.compare_stores({}), [])
+
+    def test_unnamed_store_gets_label(self):
+        data = {"stores": [{"investment": 100000, "monthly_revenue": 50000,
+                            "variable_cost_rate": 0.40, "monthly_fixed_cost": 20000}]}
+        rows = bs.compare_stores(data)
+        self.assertEqual(rows[0][0], "店1")
+
+
 class TestCli(unittest.TestCase):
     def test_missing_file(self):
         self.assertEqual(bs.main(["payback", "-i", "不存在.json"]), 2)
