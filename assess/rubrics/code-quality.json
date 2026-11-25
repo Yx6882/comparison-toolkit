@@ -1,0 +1,82 @@
+{
+  "id": "code-quality",
+  "title": "代码质量体检",
+  "kind": "business",
+  "source": "参考业界常用的代码质量阈值：测试覆盖率、圈复杂度、重复率、单文件规模。这些是「工程常识线」，不是硬标准——核心交易系统要求远高于内部脚本。",
+  "disclaimer": "本表只做数值对照，不评估架构设计、不判断代码正确性。阈值可按团队规范调整。",
+  "summary_rules": [
+    "覆盖率和复杂度是两条最值得盯的线",
+    "重复率高的项目，改一个 bug 要改几处",
+    "单文件过大通常是职责没拆开的信号"
+  ],
+  "items": [
+    {
+      "key": "coverage",
+      "name": "测试覆盖率",
+      "unit": "%",
+      "aliases": ["覆盖率", "测试覆盖率", "coverage"],
+      "kind": "range",
+      "ranges": [
+        { "max": 40, "level": "不足", "severity": "关注" },
+        { "max": 70, "level": "一般", "severity": "注意" },
+        { "max": null, "level": "较好", "severity": "正常" }
+      ],
+      "advice": {
+        "不足": "低于 40% 时重构风险很高，先补关键路径的测试。",
+        "一般": "补核心业务逻辑，不必追求 100%。",
+        "较好": "维持，注意别为了数字写无意义的测试。"
+      }
+    },
+    {
+      "key": "complexity",
+      "name": "平均圈复杂度",
+      "unit": "",
+      "aliases": ["圈复杂度", "复杂度", "cyclomatic"],
+      "kind": "range",
+      "ranges": [
+        { "max": 10, "level": "清晰", "severity": "正常" },
+        { "max": 20, "level": "偏高", "severity": "注意" },
+        { "max": null, "level": "难维护", "severity": "关注" }
+      ],
+      "advice": {
+        "清晰": "函数职责单一，好维护。",
+        "偏高": "超过 10 的函数建议拆分，尤其是嵌套很深的那种。",
+        "难维护": "超过 20 基本没法安全改动，优先重构。"
+      }
+    },
+    {
+      "key": "duplication",
+      "name": "代码重复率",
+      "unit": "%",
+      "aliases": ["重复率", "重复代码", "duplication"],
+      "kind": "range",
+      "ranges": [
+        { "max": 5, "level": "正常", "severity": "正常" },
+        { "max": 10, "level": "偏高", "severity": "注意" },
+        { "max": null, "level": "严重", "severity": "关注" }
+      ],
+      "advice": {
+        "正常": "重复在可接受范围。",
+        "偏高": "找出重复率最高的几个文件，通常有共同的抽取点。",
+        "严重": "改一处要改多处的典型症状，优先提炼公共模块。"
+      }
+    },
+    {
+      "key": "max_file_lines",
+      "name": "单文件最大行数",
+      "unit": "行",
+      "aliases": ["单文件行数", "最大文件", "file_lines"],
+      "kind": "range",
+      "ranges": [
+        { "max": 500, "level": "合理", "severity": "正常" },
+        { "max": 1000, "level": "偏大", "severity": "注意" },
+        { "max": null, "level": "过大", "severity": "关注" }
+      ],
+      "advice": {
+        "合理": "文件规模健康。",
+        "偏大": "超过 500 行通常混了多个职责，看能不能拆。",
+        "过大": "超过 1000 行的文件，改动的心理成本已经很高了。"
+      }
+    }
+  ]
+}

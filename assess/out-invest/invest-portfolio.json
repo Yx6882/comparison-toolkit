@@ -1,0 +1,42 @@
+{
+  "version": "0.1.0",
+  "rubric": "invest-portfolio",
+  "items": [
+    {
+      "key": "equity_ratio",
+      "name": "权益类占比",
+      "value": 65.0,
+      "unit": "%",
+      "level": "平衡",
+      "severity": "正常",
+      "missing": false
+    },
+    {
+      "key": "single_asset_ratio",
+      "name": "单一标的最大占比",
+      "value": 28.0,
+      "unit": "%",
+      "level": "集中",
+      "severity": "关注",
+      "missing": false
+    },
+    {
+      "key": "cash_ratio",
+      "name": "现金类占比",
+      "value": 8.0,
+      "unit": "%",
+      "level": "偏薄",
+      "severity": "注意",
+      "missing": false
+    },
+    {
+      "key": "max_drawdown",
+      "name": "历史最大回撤",
+      "value": 32.0,
+      "unit": "%",
+      "level": "剧烈",
+      "severity": "关注",
+      "missing": false
+    }
+  ]
+}

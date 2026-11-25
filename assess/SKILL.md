@@ -6,6 +6,39 @@ license: MIT
 
 # Assess · 对象 vs 标准
 
+## 内置规则库（按行业）
+
+| Rubric | 行业 | 检查什么 |
+|---|---|---|
+| `health-metabolic` | 健康 | 血脂/血糖/尿酸/血压分级 |
+| `career-pm` | 职场 | 产品经理能力对照 |
+| `budget-50-30-20` | 个人财务 | 收入分配比例 |
+| `shop-operating` | **开店** | 毛利率、租售比、库存周转、人力成本 |
+| `invest-portfolio` | **投资** | 权益占比、集中度、现金垫、最大回撤 |
+| `code-quality` | **编程** | 覆盖率、圈复杂度、重复率、文件规模 |
+| `hiring-match` | **招聘** | 要求覆盖、必备技能、经验差距、技能重叠 |
+
+加规则的代价是**一个 JSON 文件**，不用改代码：
+
+```bash
+python scripts/assess.py run --rubric shop-operating --kv "毛利率=28,租售比=18"
+python scripts/assess.py run --rubric code-quality --kv "测试覆盖率=35,代码重复率=12"
+```
+
+每个 rubric 都写清了：
+- 数据来源和适用范围
+- 免责声明（不构成专业意见）
+- 每档的具体建议
+
+## 怎么加一个新行业
+
+照着 `rubrics/shop-operating.json` 的结构写一份，放进 `rubrics/` 就能用。
+
+三种对照类型：
+- `range`：数值落在哪个区间（毛利率 28% → 一般）
+- `target`：离目标差多少（覆盖率目标 80%）
+- `ratio`：算个比率再对照
+
 ## 区间语义：左闭右开
 
 `max` 是这一级的**上界**，落在界值上归**下一级**：

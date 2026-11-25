@@ -1,0 +1,42 @@
+{
+  "version": "0.1.0",
+  "rubric": "code-quality",
+  "items": [
+    {
+      "key": "coverage",
+      "name": "测试覆盖率",
+      "value": 35.0,
+      "unit": "%",
+      "level": "不足",
+      "severity": "关注",
+      "missing": false
+    },
+    {
+      "key": "complexity",
+      "name": "平均圈复杂度",
+      "value": 18.0,
+      "unit": "",
+      "level": "偏高",
+      "severity": "注意",
+      "missing": false
+    },
+    {
+      "key": "duplication",
+      "name": "代码重复率",
+      "value": 12.0,
+      "unit": "%",
+      "level": "严重",
+      "severity": "关注",
+      "missing": false
+    },
+    {
+      "key": "max_file_lines",
+      "name": "单文件最大行数",
+      "value": 1800.0,
+      "unit": "行",
+      "level": "过大",
+      "severity": "关注",
+      "missing": false
+    }
+  ]
+}

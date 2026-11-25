@@ -1,0 +1,42 @@
+{
+  "version": "0.1.0",
+  "rubric": "hiring-match",
+  "items": [
+    {
+      "key": "requirement_coverage",
+      "name": "岗位要求覆盖率",
+      "value": 65.0,
+      "unit": "%",
+      "level": "略低",
+      "severity": "注意",
+      "missing": false
+    },
+    {
+      "key": "required_skills",
+      "name": "必备技能满足数",
+      "value": 3.0,
+      "unit": "项",
+      "level": "明显不足",
+      "severity": "关注",
+      "missing": false
+    },
+    {
+      "key": "experience_gap",
+      "name": "经验年限差距",
+      "value": 3.0,
+      "unit": "年",
+      "level": "短板",
+      "severity": "关注",
+      "missing": false
+    },
+    {
+      "key": "skill_overlap",
+      "name": "技能重叠率",
+      "value": 50.0,
+      "unit": "%",
+      "level": "明显不足",
+      "severity": "关注",
+      "missing": false
+    }
+  ]
+}

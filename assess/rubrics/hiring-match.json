@@ -1,0 +1,55 @@
+{
+  "id": "hiring-match",
+  "title": "招聘匹配度",
+  "kind": "business",
+  "source": "参考招聘实践中常用的匹配维度：岗位要求覆盖、经验匹配、技能重叠、稳定性信号。权重是通用经验，不同岗位差异很大——初级岗看潜力，高级岗看深度。",
+  "disclaimer": "本表只按你填的数字做结构化对照，不判断候选人是否合格、不做录用结论。招聘决策涉及面试、背景调查和团队判断，工具替代不了。",
+  "summary_rules": [
+    "要求覆盖率和经验匹配是两条主线",
+    "技能重叠高但经验差很远，通常是岗位级别定错了",
+    "不要把工具分数当成录用依据"
+  ],
+  "items": [
+    {
+      "key": "requirement_coverage",
+      "name": "岗位要求覆盖率",
+      "unit": "%",
+      "aliases": ["要求覆盖率", "匹配度", "JD匹配"],
+      "kind": "target",
+      "target": 80,
+      "direction": "higher_better",
+      "weight": 1.0
+    },
+    {
+      "key": "required_skills",
+      "name": "必备技能满足数",
+      "unit": "项",
+      "aliases": ["必备技能", "硬技能"],
+      "kind": "target",
+      "target": 5,
+      "direction": "higher_better",
+      "weight": 1.0
+    },
+    {
+      "key": "experience_gap",
+      "name": "经验年限差距",
+      "unit": "年",
+      "aliases": ["经验差距", "年限差距"],
+      "kind": "target",
+      "target": 0,
+      "direction": "lower_better",
+      "note": "与岗位要求年限的差距，越接近 0 越好",
+      "weight": 0.8
+    },
+    {
+      "key": "skill_overlap",
+      "name": "技能重叠率",
+      "unit": "%",
+      "aliases": ["技能重叠", "技能匹配率"],
+      "kind": "target",
+      "target": 70,
+      "direction": "higher_better",
+      "weight": 0.9
+    }
+  ]
+}
