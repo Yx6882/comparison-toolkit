@@ -405,11 +405,15 @@ def resolve_rubric(path: str) -> Path:
         alt = DEFAULT_RUBRICS / f"{path}{suffix}"
         if alt.exists():
             return alt
-    raise SystemExit(f"rubric not found: {path} (looked in {DEFAULT_RUBRICS})")
+    # 支持子目录：rubrics/industry/<id>.json 这类组织方式
+    matches = sorted(DEFAULT_RUBRICS.rglob(f"{path}.json"))
+    if matches:
+        return matches[0]
+    raise SystemExit(f"rubric not found: {path} (looked in {DEFAULT_RUBRICS} and its subdirectories)")
 
 
 def cmd_list(args: argparse.Namespace) -> int:
-    for path in sorted(DEFAULT_RUBRICS.glob("*.json")):
+    for path in sorted(DEFAULT_RUBRICS.rglob("*.json")):
         try:
             rubric = load_rubric(path)
         except SystemExit:
